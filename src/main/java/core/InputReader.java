@@ -21,13 +21,18 @@ public class InputReader {
         this.parser = parser;
     }
 
-    public Object parse(String filename) throws URISyntaxException {
+    public Object parse(String filename) {
 
-        Path path = Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource(filename)).toURI());
+        Path path = null;
+        try {
+            path = Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource(filename)).toURI());
+        } catch (URISyntaxException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        }
 
         Object ret = new Object();
 
-        try (Stream<String> stream = Files.lines(path)) {
+        try (Stream<String> stream = Files.lines(Objects.requireNonNull(path))) {
 
             Iterator<String> it = stream.iterator();
 

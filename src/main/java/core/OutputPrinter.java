@@ -21,10 +21,15 @@ public class OutputPrinter {
         this.printer = printer;
     }
 
-    public void createOutput(String filename) throws URISyntaxException {
+    public void createOutput(String filename) {
 
-        Path another = Paths.get(Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).toURI())
-                                      .toString(), filename);
+        Path another = null;
+        try {
+            another = Paths.get(Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).toURI())
+                                          .toString(), filename);
+        } catch (URISyntaxException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        }
 
         StringBuilder sb = new StringBuilder();
 
@@ -38,7 +43,7 @@ public class OutputPrinter {
         });
 
         try {
-            Files.write(another, sb.toString().getBytes(), CREATE, TRUNCATE_EXISTING);
+            Files.write(Objects.requireNonNull(another), sb.toString().getBytes(), CREATE, TRUNCATE_EXISTING);
         } catch (IOException e) {
             logger.error(e.getLocalizedMessage(), e);
         }

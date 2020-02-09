@@ -1,17 +1,16 @@
 package pizza;
 
+import core.InputReader;
 import core.OutputPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import core.InputReader;
 import pizza.model.Pizza;
 
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 public class Main {
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(Main.class);
         logger.info("Hello World");
         Pizza parse = (Pizza) new InputReader(new PizzaParser()).parse("pizza/a_example.in");
