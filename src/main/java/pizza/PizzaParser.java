@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public class PizzaParser implements IParser {
 
     private Pizza pizza = new Pizza();
+
     @Override
     public Object parseHeader(String[] strings) {
         pizza.setMaxSlices(Integer.parseInt(strings[0]));

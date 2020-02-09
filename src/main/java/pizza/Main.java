@@ -1,20 +1,14 @@
 package pizza;
 
-import core.InputReader;
-import core.OutputPrinter;
+import core.AllSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pizza.model.Pizza;
-
-import java.util.Collection;
 
 public class Main {
 
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(Main.class);
         logger.info("Hello World");
-        Pizza parse = (Pizza) new InputReader(new PizzaParser()).parse("pizza/a_example.in");
-        Iterable<Integer> process = new PizzaProcessor().process(parse);
-        new OutputPrinter(new PizzaPrinter((Collection<Integer>) process)).createOutput("pizza/a_example.out");
+        new AllSteps(new PizzaParser(), new PizzaProcessor(), new PizzaPrinter()).calculate("pizza");
     }
 }

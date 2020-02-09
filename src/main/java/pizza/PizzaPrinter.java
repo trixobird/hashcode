@@ -7,19 +7,15 @@ import java.util.Collections;
 
 public class PizzaPrinter implements IPrinter {
 
-    private final Collection<Integer> pizzas;
-
-    public PizzaPrinter(Collection<Integer> pizzas) {
-        this.pizzas = pizzas;
-    }
-
     @Override
-    public String convertHeader() {
+    public String convertHeader(Object obj) {
+        Collection<Integer> pizzas = (Collection<Integer>)obj;
         return String.valueOf(pizzas.size());
     }
 
     @Override
-    public Iterable<String> convertBody() {
+    public Iterable<String> convertBody(Object obj) {
+        Collection<Integer> pizzas = (Collection<Integer>)obj;
         StringBuilder sb = new StringBuilder();
         pizzas.forEach(integer -> {
             sb.append(integer);
