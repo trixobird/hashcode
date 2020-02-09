@@ -9,6 +9,10 @@ public class Main {
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(Main.class);
         logger.info("Hello World");
-        new AllSteps(new PizzaParser(), new PizzaProcessor(), new PizzaPrinter()).calculate("pizza");
+        new AllSteps(Main.class.getPackage().getName(),
+                     new PizzaParser(),
+                     new PizzaProcessor(),
+                     new PizzaPrinter())
+                .calculate("a_example.in");
     }
 }

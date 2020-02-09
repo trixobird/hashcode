@@ -9,12 +9,14 @@ public class PizzaPrinter implements IPrinter {
 
     @Override
     public String convertHeader(Object obj) {
+        @SuppressWarnings("unchecked")
         Collection<Integer> pizzas = (Collection<Integer>)obj;
         return String.valueOf(pizzas.size());
     }
 
     @Override
     public Iterable<String> convertBody(Object obj) {
+        @SuppressWarnings("unchecked")
         Collection<Integer> pizzas = (Collection<Integer>)obj;
         StringBuilder sb = new StringBuilder();
         pizzas.forEach(integer -> {

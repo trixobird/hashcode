@@ -1,9 +1,12 @@
 package core;
 
 import lombok.NonNull;
+import org.aeonbits.owner.ConfigFactory;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -19,27 +22,27 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public class AllSteps {
 
-    private static final String TOKEN = " ";
-    private static final String IN = ".in";
-    private static final String OUT = ".out";
     private static Logger logger = LoggerFactory.getLogger(AllSteps.class);
+    private final String pkgName;
     private final IParser parser;
     private final IPrinter printer;
     private final IProcessor processor;
+    private final CoreConfig cfg;
 
-    public AllSteps(IParser parser, IProcessor processor, IPrinter printer) {
+    public AllSteps(String pkgName, IParser parser, IProcessor processor, IPrinter printer) {
         this.parser = parser;
         this.processor = processor;
         this.printer = printer;
+        this.pkgName = pkgName;
+        cfg = initProperties(pkgName);
     }
 
-    public void calculate(String fileOrDirectory) {
+    public void calculate() {
+        findInputFiles(pkgName, cfg.inputSuffix()).forEach(this::processOneFile);
+    }
 
-        if (isFile(fileOrDirectory)) {
-            processOneFile(getFileOrDirFromResources(fileOrDirectory));
-        } else {
-            findInputFiles(fileOrDirectory).forEach(this::processOneFile);
-        }
+    public void calculate(String filename) {
+        processOneFile(getFileOrDirFromResources(pkgName + '/' + filename));
     }
 
     private void processOneFile(Path inputFile) {
@@ -47,15 +50,11 @@ public class AllSteps {
         Object processedObj = processor.process(input);
         String outputFileName = inputFile.toString()
                                          .substring(getResources().toString().length())
-                                         .replace(IN, OUT);
+                                         .replace(cfg.inputSuffix(), cfg.outputSuffix());
         createOutput(outputFileName, processedObj);
     }
 
-    private boolean isFile(String fileOrDirectory) {
-        return getFileOrDirFromResources(fileOrDirectory).toFile().isFile();
-    }
-
-    private List<Path> findInputFiles(String directory) {
+    private List<Path> findInputFiles(String directory, String extension) {
 
         Path resourcesPath = getResources();
 
@@ -68,11 +67,9 @@ public class AllSteps {
 
             try (Stream<Path> walkFiles = Files.walk(dir)) {
                 return walkFiles.filter(p -> p.toFile().isFile())
-                                .filter(p -> p.getFileName().toString().contains(IN))
+                                .filter(p -> FilenameUtils.getExtension(p.getFileName().toString()).equals(extension))
                                 .collect(Collectors.toList());
             }
-
-
         } catch (IOException e) {
             logger.error(e.getLocalizedMessage(), e);
         }
@@ -92,11 +89,11 @@ public class AllSteps {
             }
 
             if (parser.hasHeader()) {
-                ret = parser.parseHeader(it.next().split(TOKEN));
+                ret = parser.parseHeader(it.next().split(cfg.token()));
             }
 
             while (it.hasNext()) {
-                ret = parser.parseBody(it.next().split(TOKEN));
+                ret = parser.parseBody(it.next().split(cfg.token()));
             }
             String strInput = ret.toString();
             logger.debug(strInput);
@@ -132,6 +129,28 @@ public class AllSteps {
 
     private Path getResources() {
         return getFileOrDirFromResources("");
+    }
+
+    private Path getPropertiesPath(String pkgName) {
+        Path fileOrDirFromResources;
+        try {
+            fileOrDirFromResources = getFileOrDirFromResources(pkgName + '/' + pkgName + ".properties");
+        } catch (Exception e) {
+            fileOrDirFromResources = findInputFiles(pkgName, "properties").get(0);
+        }
+        return fileOrDirFromResources;
+    }
+
+    private CoreConfig initProperties(String pkgName) {
+        CoreConfig config;
+        try {
+            Properties prop = new Properties();
+            prop.load(new FileInputStream(getPropertiesPath(pkgName).toString()));
+            config = ConfigFactory.create(CoreConfig.class, prop);
+        } catch (Exception e) {
+            config = ConfigFactory.create(CoreConfig.class);
+        }
+        return config;
     }
 
     @NonNull
