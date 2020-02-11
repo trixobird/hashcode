@@ -1,14 +1,15 @@
 package pizza.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.util.Collection;
+import java.util.List;
 
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
 public class Pizza {
     private int maxSlices;
-    private Collection<Integer> pizzasSlices;
+    private List<Integer> pizzasSlices;
 }
